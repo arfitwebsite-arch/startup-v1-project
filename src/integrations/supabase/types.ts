@@ -14,7 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      decision_answers: {
+        Row: {
+          answer: string
+          created_at: string
+          decision_id: string
+          id: string
+          question: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          decision_id: string
+          id?: string
+          question: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          decision_id?: string
+          id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_answers_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decision_explanations: {
+        Row: {
+          created_at: string
+          decision_id: string
+          explanation: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          decision_id: string
+          explanation: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          decision_id?: string
+          explanation?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_explanations_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decisions: {
+        Row: {
+          created_at: string
+          decision_text: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision_text: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decision_text?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

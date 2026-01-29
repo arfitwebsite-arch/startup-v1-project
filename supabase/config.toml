@@ -1,1 +1,7 @@
 project_id = "tdxepwdtdeqwoucqlaru"
+
+[functions.generate-questions]
+verify_jwt = false
+
+[functions.generate-explanation]
+verify_jwt = false
