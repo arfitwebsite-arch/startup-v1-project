@@ -1,73 +1,63 @@
-# Welcome to your Lovable project
+# Explain My Decision (EMD)
 
-## Project info
+Explain My Decision (EMD) is an AI-powered web application that helps users understand **why an answer, solution, or decision makes sense** — not just what the answer is.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Instead of giving raw answers, EMD focuses on **clarity, reasoning, and explanation**, making it ideal for students, learners, and professionals who want to truly understand concepts.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+##  What Problem Does EMD Solve?
 
-**Use Lovable**
+Most AI tools today:
+- Give answers without reasoning
+- Skip assumptions and logic
+- Leave users confused or dependent
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+**EMD fixes this** by turning any question + answer into a **step-by-step, human-friendly explanation** using AI.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🧠 How It Works (V1)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. User enters:
+   - A **question**
+   - An **answer/solution** (their own or AI-generated)
+2. EMD uses **Google Gemini AI** to:
+   - Analyze the logic
+   - Identify assumptions
+   - Break down reasoning
+3. User receives:
+   - A clear explanation
+   - Structured steps
+   - Simple language summary
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## ✨ Core Features (V1)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- AI-powered explanation engine (Gemini)
+- Simple question + answer input flow
+- Clean, distraction-free UI
+- Fast responses using serverless architecture
+- Secure authentication with Supabase
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🛠 Tech Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- **Frontend:** Next.js
+- **Backend & Auth:** Supabase
+- **AI Engine:** Google Gemini API (custom API key)
+- **UI:** Tailwind CSS (via Lovable)
+- **Deployment:** Vercel (recommended)
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔐 Environment Variables
 
-**Use GitHub Codespaces**
+Create a `.env.local` file and add:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+GEMINI_API_KEY=your_google_gemini_api_key
