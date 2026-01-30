@@ -65,10 +65,7 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm mb-6">
-            <Sparkles className="h-4 w-4" />
-            AI-Powered Reasoning Analysis
-          </div>
+         
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
             Think Clearly.
             <br />
@@ -81,9 +78,9 @@ const Landing = () => {
             <Button size="lg" onClick={() => navigate("/login")} className="gap-2">
               Start Analyzing <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/login")}>
+            {/* <Button size="lg" variant="outline" onClick={() => navigate("/login")}>
               View Demo
-            </Button>
+            </Button> */}
           </div>
         </div>
       </section>
@@ -207,9 +204,9 @@ const Landing = () => {
             <span className="font-semibold">Explain My Decision</span>
           </div>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+            {/* <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a> */}
+            {/* <a href="" className="hover:text-foreground transition-colors">Contact</a> */}
           </div>
         </div>
       </footer>
