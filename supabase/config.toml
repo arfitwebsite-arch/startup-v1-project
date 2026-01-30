@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.generate-explanation]
 verify_jwt = false
+
+[functions.analyze-explanation]
+verify_jwt = false
+
+[functions.challenge-thinking]
+verify_jwt = false

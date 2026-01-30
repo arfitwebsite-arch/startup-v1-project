@@ -16,13 +16,13 @@ const Login = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        navigate("/new-decision");
+        navigate("/dashboard");
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/new-decision");
+        navigate("/dashboard");
       }
     });
 
@@ -46,7 +46,7 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${window.location.origin}/new-decision`,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
 

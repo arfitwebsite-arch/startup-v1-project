@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_thinking: {
+        Row: {
+          bias_analysis: string | null
+          counter_questions: Json | null
+          created_at: string
+          id: string
+          logical_flaws: Json | null
+          problem_statement: string
+          suggested_improvements: Json | null
+          user_conclusion: string
+          user_id: string
+          user_reasoning: string
+        }
+        Insert: {
+          bias_analysis?: string | null
+          counter_questions?: Json | null
+          created_at?: string
+          id?: string
+          logical_flaws?: Json | null
+          problem_statement: string
+          suggested_improvements?: Json | null
+          user_conclusion: string
+          user_id: string
+          user_reasoning: string
+        }
+        Update: {
+          bias_analysis?: string | null
+          counter_questions?: Json | null
+          created_at?: string
+          id?: string
+          logical_flaws?: Json | null
+          problem_statement?: string
+          suggested_improvements?: Json | null
+          user_conclusion?: string
+          user_id?: string
+          user_reasoning?: string
+        }
+        Relationships: []
+      }
       decision_answers: {
         Row: {
           answer: string
@@ -92,6 +131,60 @@ export type Database = {
           created_at?: string
           decision_text?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      explanations: {
+        Row: {
+          answer: string
+          clarity_score: number | null
+          confidence_score: number | null
+          created_at: string
+          explanation: string
+          id: string
+          improvement_suggestions: Json | null
+          is_public: boolean | null
+          language: string | null
+          logical_strength_score: number | null
+          missing_assumptions: Json | null
+          question: string
+          simple_summary: string | null
+          subject: string | null
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          clarity_score?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          explanation: string
+          id?: string
+          improvement_suggestions?: Json | null
+          is_public?: boolean | null
+          language?: string | null
+          logical_strength_score?: number | null
+          missing_assumptions?: Json | null
+          question: string
+          simple_summary?: string | null
+          subject?: string | null
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          clarity_score?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          explanation?: string
+          id?: string
+          improvement_suggestions?: Json | null
+          is_public?: boolean | null
+          language?: string | null
+          logical_strength_score?: number | null
+          missing_assumptions?: Json | null
+          question?: string
+          simple_summary?: string | null
+          subject?: string | null
           user_id?: string
         }
         Relationships: []
