@@ -1,15 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { callGemini, parseJsonResponse, corsHeaders, createErrorResponse, createSuccessResponse } from "../_shared/gemini-client.ts";
-
-interface AnalysisResult {
-  step_by_step_explanation: string;
-  simple_summary: string;
-  logical_strength_score: number;
-  clarity_score: number;
-  confidence_score: number;
-  missing_assumptions: string[];
-  improvement_suggestions: string[];
-}
+import { 
+  detectCategory, 
+  calculateScores, 
+  extractMissingAssumptions, 
+  generateImprovements,
+  corsHeaders, 
+  createErrorResponse, 
+  createSuccessResponse 
+} from "../_shared/text-analysis.ts";
+import { generateStepByStep, generateSummary } from "../_shared/explanation-templates.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -23,48 +22,41 @@ serve(async (req) => {
       return createErrorResponse("question and answer are required", 400);
     }
 
-    const languageInstruction = language === "hi" 
-      ? "Respond in Hindi language." 
-      : "Respond in English language.";
+    // Detect category from question and answer
+    const combinedText = `${question} ${answer} ${subject || ''}`;
+    const category = detectCategory(combinedText);
+    console.log(`Detected category: ${category}`);
 
-    const prompt = `You are a reasoning evaluation AI. Your job is to analyze the quality of human reasoning and explanations.
+    // Calculate heuristic scores
+    const scores = calculateScores(answer);
+    console.log(`Scores: logical=${scores.logicalStrength}, clarity=${scores.clarity}, confidence=${scores.confidence}`);
 
-${languageInstruction}
+    // Generate step-by-step explanation
+    const stepByStep = generateStepByStep(
+      question, 
+      [{ question, answer }], 
+      category
+    );
 
-You must respond with a valid JSON object containing these exact fields:
-- step_by_step_explanation: A detailed breakdown of the reasoning process (string)
-- simple_summary: A 1-2 sentence plain language summary (string)
-- logical_strength_score: How logically sound the reasoning is (integer 0-100)
-- clarity_score: How clear and understandable the explanation is (integer 0-100)
-- confidence_score: Your confidence in this analysis (integer 0-100)
-- missing_assumptions: Array of unstated assumptions that could affect the conclusion (array of strings)
-- improvement_suggestions: Specific ways to strengthen the reasoning (array of strings)
+    // Generate simple summary
+    const simpleSummary = generateSummary(question, category);
 
-Be objective and analytical. Do not give advice or motivational language.
-Focus on evaluating the QUALITY of reasoning, not whether the decision is "right" or "wrong".
+    // Extract missing assumptions
+    const missingAssumptions = extractMissingAssumptions(answer, category);
 
-Question/Decision: "${question}"
+    // Generate improvement suggestions
+    const improvements = generateImprovements(answer, scores);
 
-User's Answer/Reasoning: "${answer}"
+    const analysis = {
+      step_by_step_explanation: stepByStep,
+      simple_summary: simpleSummary,
+      logical_strength_score: scores.logicalStrength,
+      clarity_score: scores.clarity,
+      confidence_score: scores.confidence,
+      missing_assumptions: missingAssumptions,
+      improvement_suggestions: improvements
+    };
 
-${subject ? `Subject Area: ${subject}` : ""}
-
-Analyze the quality of this reasoning and provide your evaluation as JSON. Output ONLY the JSON object, no other text.`;
-
-    const response = await callGemini({ prompt, temperature: 0.3, jsonMode: true });
-
-    if (response.error) {
-      console.error("Gemini error:", response.error);
-      const status = response.error.includes("Rate limit") ? 429 : 500;
-      return createErrorResponse(response.error, status);
-    }
-
-    const analysis = parseJsonResponse<AnalysisResult>(response.text);
-    
-    if (!analysis) {
-      return createErrorResponse("Invalid JSON response from AI", 500);
-    }
-    
     console.log("Generated analysis:", analysis);
     return createSuccessResponse(analysis);
 
