@@ -20,12 +20,12 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a critical thinking coach. Your role is to challenge the user's reasoning to help them think more clearly.
+    const prompt = `You are a critical thinking coach. Your role is to challenge the user's reasoning to help them think more clearly.
 
 IMPORTANT RULES:
 - Do NOT give the answer or tell them what to conclude
@@ -40,57 +40,37 @@ You must respond with a valid JSON object containing:
 - counter_questions: Thought-provoking questions that challenge their assumptions (array of strings, max 5)
 - suggested_improvements: Specific ways to strengthen their reasoning process (array of strings)
 
-Be constructive but rigorous. The goal is to improve their thinking, not to prove them wrong.`;
+Be constructive but rigorous. The goal is to improve their thinking, not to prove them wrong.
 
-    const userPrompt = `Problem Statement: "${problem_statement}"
+Problem Statement: "${problem_statement}"
 
 User's Reasoning: "${user_reasoning}"
 
 User's Conclusion: "${user_conclusion}"
 
-Analyze this thinking process and provide your challenge as JSON.`;
+Analyze this thinking process and provide your challenge as JSON. Output ONLY the JSON object, no other text.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.4,
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "provide_challenge",
-              description: "Provide the thinking challenge results",
-              parameters: {
-                type: "object",
-                properties: {
-                  logical_flaws: { type: "array", items: { type: "string" } },
-                  bias_analysis: { type: "string" },
-                  counter_questions: { type: "array", items: { type: "string" } },
-                  suggested_improvements: { type: "array", items: { type: "string" } },
-                },
-                required: [
-                  "logical_flaws",
-                  "bias_analysis",
-                  "counter_questions",
-                  "suggested_improvements"
-                ],
-                additionalProperties: false,
-              },
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }],
             },
+          ],
+          generationConfig: {
+            temperature: 0.4,
+            responseMimeType: "application/json",
           },
-        ],
-        tool_choice: { type: "function", function: { name: "provide_challenge" } },
-      }),
-    });
+        }),
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -99,26 +79,21 @@ Analyze this thinking process and provide your challenge as JSON.`;
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Payment required." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("Gemini API error:", response.status, errorText);
+      throw new Error("Gemini API error");
     }
 
     const data = await response.json();
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     
-    // Extract the function call arguments
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== "provide_challenge") {
-      throw new Error("Invalid response format from AI");
+    let challenge;
+    try {
+      challenge = JSON.parse(content);
+    } catch (e) {
+      console.error("Failed to parse JSON response:", content);
+      throw new Error("Invalid JSON response from AI");
     }
-
-    const challenge = JSON.parse(toolCall.function.arguments);
     
     console.log("Generated challenge:", challenge);
 
