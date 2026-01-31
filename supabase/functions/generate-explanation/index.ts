@@ -1,9 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { callGemini, corsHeaders, createErrorResponse, createSuccessResponse } from "../_shared/gemini-client.ts";
 
 // Check if explanation contains forbidden patterns
 function containsForbiddenPatterns(text: string): boolean {
@@ -34,15 +30,7 @@ serve(async (req) => {
     const { decision_text, answers } = await req.json();
 
     if (!decision_text) {
-      return new Response(
-        JSON.stringify({ error: "decision_text is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not configured");
+      return createErrorResponse("decision_text is required", 400);
     }
 
     const systemPrompt = `You explain human decisions clearly and neutrally.
@@ -66,6 +54,8 @@ Rules:
 
 ${answersFormatted ? `Answers:\n${answersFormatted}\n\n` : ""}Explain why this decision was made.`;
 
+    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+
     let explanation = "";
     let attempts = 0;
     const maxAttempts = 3;
@@ -73,41 +63,15 @@ ${answersFormatted ? `Answers:\n${answersFormatted}\n\n` : ""}Explain why this d
     while (attempts < maxAttempts) {
       attempts++;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.5,
-            },
-          }),
-        }
-      );
+      const response = await callGemini({ prompt: fullPrompt, temperature: 0.5 });
 
-      if (!response.ok) {
-        if (response.status === 429) {
-          return new Response(
-            JSON.stringify({ error: "Rate limits exceeded, please try again later." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        const errorText = await response.text();
-        console.error("Gemini API error:", response.status, errorText);
-        throw new Error("Gemini API error");
+      if (response.error) {
+        console.error("Gemini error:", response.error);
+        const status = response.error.includes("Rate limit") ? 429 : 500;
+        return createErrorResponse(response.error, status);
       }
 
-      const data = await response.json();
-      explanation = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      explanation = response.text;
 
       if (!containsForbiddenPatterns(explanation)) {
         break;
@@ -117,20 +81,14 @@ ${answersFormatted ? `Answers:\n${answersFormatted}\n\n` : ""}Explain why this d
     }
 
     if (!explanation) {
-      throw new Error("Failed to generate explanation");
+      return createErrorResponse("Failed to generate explanation", 500);
     }
 
     console.log("Generated explanation:", explanation);
+    return createSuccessResponse({ explanation });
 
-    return new Response(
-      JSON.stringify({ explanation }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
   } catch (error) {
     console.error("generate-explanation error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return createErrorResponse(error instanceof Error ? error.message : "Unknown error");
   }
 });
