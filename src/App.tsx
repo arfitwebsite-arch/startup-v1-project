@@ -11,6 +11,10 @@ import ChallengePage from "./pages/ChallengePage";
 import HistoryPage from "./pages/HistoryPage";
 import ViewExplanation from "./pages/ViewExplanation";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/terms";
+import Contact from "./pages/Contact";
+
 
 const queryClient = new QueryClient();
 
@@ -28,6 +32,9 @@ const App = () => (
           <Route path="/challenge" element={<ChallengePage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/view/:id" element={<ViewExplanation />} />
+          <Route path="/privacy" element={<PrivacyPolicy/>} />
+          <Route path="/term" element={<TermsOfService/>} />
+           <Route path="/contact" element={<Contact/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

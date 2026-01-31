@@ -78,9 +78,6 @@ const Landing = () => {
             <Button size="lg" onClick={() => navigate("/login")} className="gap-2">
               Start Analyzing <ArrowRight className="h-4 w-4" />
             </Button>
-            {/* <Button size="lg" variant="outline" onClick={() => navigate("/login")}>
-              View Demo
-            </Button> */}
           </div>
         </div>
       </section>
@@ -204,9 +201,9 @@ const Landing = () => {
             <span className="font-semibold">Explain My Decision</span>
           </div>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            {/* <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a> */}
-            {/* <a href="" className="hover:text-foreground transition-colors">Contact</a> */}
+             <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a>
+            <a href="/term" className="hover:text-foreground transition-colors">Terms of Service</a> 
+            <a href="/contact" className="hover:text-foreground transition-colors">Contact</a>
           </div>
         </div>
       </footer>
